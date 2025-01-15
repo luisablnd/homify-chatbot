@@ -1,0 +1,74 @@
+<!-- Embed this in your HTML -->
+<div id="homify-chatbot" style="width: 300px; border: 1px solid #ccc; padding: 10px;">
+  <div id="chat-window" style="max-height: 400px; overflow-y: auto;"></div>
+  <input id="chat-input" type="text" placeholder="Type your message..." style="width: 80%;" />
+  <button id="chat-send" style="width: 18%;">Send</button>
+</div>
+
+<script>
+  const apiKey = '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'; // Replace with your OpenAI API Key
+  const chatWindow = document.getElementById('chat-window');
+  const chatInput = document.getElementById('chat-input');
+  const chatSend = document.getElementById('chat-send');
+
+  async function sendMessageToChatGPT(message) {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4",
+        messages: [
+          { role: "system", content: "You are a helpful chatbot for a remodeling website." },
+          { role: "user", content: message }
+        ]
+      }),
+    });
+    const data = await response.json();
+    return data.choices[0].message.content;
+  }
+
+  function appendMessage(content, sender) {
+    const messageDiv = document.createElement('div');
+    messageDiv.style.padding = '5px';
+    messageDiv.style.marginBottom = '5px';
+    messageDiv.style.borderRadius = '5px';
+    messageDiv.style.maxWidth = '80%';
+    if (sender === 'user') {
+      messageDiv.style.backgroundColor = '#f0f0f0';
+      messageDiv.style.marginLeft = 'auto';
+    } else {
+      messageDiv.style.backgroundColor = '#d9f9d9';
+    }
+    messageDiv.textContent = content;
+    chatWindow.appendChild(messageDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll to the bottom
+  }
+
+  chatSend.addEventListener('click', async () => {
+    const userMessage = chatInput.value.trim();
+    if (!userMessage) return;
+    appendMessage(userMessage, 'user');
+    chatInput.value = ''; // Clear input
+
+    appendMessage('Typing...', 'bot'); // Placeholder while waiting for response
+    const botMessage = await sendMessageToChatGPT(userMessage);
+    chatWindow.lastChild.remove(); // Remove placeholder
+    appendMessage(botMessage, 'bot');
+  });
+</script>
+Key Features of the Script
+ChatGPT Integration:
+Communicates with the OpenAI API to generate responses based on user input.
+Dynamic Interface:
+Displays chat messages interactively with clear user and bot roles.
+Scalable Design:
+Easily extendable to include more complex logic or additional features.
+How It Works
+When a user types a message, the script sends it to the OpenAI API.
+ChatGPT analyzes the input and generates a contextually relevant response.
+The bot responds with the generated text, guiding the user through their remodeling journey.
+Next Steps
+Replace YOUR_OPENAI_API_KEY with your actual API key.
